@@ -86,4 +86,4 @@ Bitte fühle dich frei, Bugs zu melden oder neue Features vorzuschlagen.
 
 ## 📜 **Lizenz**
 
-Dieses Projekt steht unter der [MIT-Lizenz](LICENSE). Feel free to use, modifizieren und verbessern! 😊
+Dieses Projekt steht unter der [MIT-Lizenz](LICENSE.md). Feel free to use, modifizieren und verbessern! 😊
