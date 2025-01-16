@@ -1,6 +1,5 @@
 # Poll - Ein Einfaches PHP-basiertes Abstimmungssystem
-
-**Projektname**: StrawPoll  
+ 
 **Beschreibung**:  
 Dieses Repository enthält ein einfaches Abstimmungssystem, mit dem Benutzer Umfragen erstellen und an Abstimmungen teilnehmen können. Die Anwendung ist mit PHP und MySQL entwickelt und ermöglicht eine intuitive und übersichtliche Oberfläche für Umfragen und deren Ergebnisse.
 
