@@ -35,7 +35,7 @@ Dieses Repository enthält ein einfaches Abstimmungssystem, mit dem Benutzer Umf
 
 1. **Klonen des Projekts**:
    ```bash
-   git clone https://github.com/username/strawpoll.git
+   git clone https://github.com/0eiki0/poll.git
    ```
 2. **Datenbankeinrichtung**:
    - Importiere die bereitgestellte SQL-Datei (`strawpoll.sql`), die alle notwendigen Tabellen (`poll`, `poll_options`, `poll_votes`) erstellt.
