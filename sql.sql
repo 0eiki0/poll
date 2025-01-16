@@ -32,6 +32,7 @@ CREATE TABLE admin_users (
     password_hash VARCHAR(255) NOT NULL
 );
 
+-- User: admin Passwort: admin
 INSERT INTO admin_users (username, password_hash) 
 VALUES ('admin', '$2y$10$NBQafZAOhXwIM21o5VgqWuOg68mlEqgL88I3nkLoeNTWJzaC0Umiu');
 
