@@ -1,9 +1,6 @@
 <?php
-// Verbindung zur Datenbank
-$servername = "localhost";
-$username = "user";
-$password = "passwort";
-$dbname = "strawpoll";
+
+include 'config.php';
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
