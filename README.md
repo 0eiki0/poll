@@ -46,7 +46,7 @@ Dieses Repository enthält ein einfaches Abstimmungssystem, mit dem Benutzer Umf
      SOURCE strawpoll.sql;
      ```
 3. **Konfiguration anpassen**:
-   - In der `config`-Datei oder im PHP-Skript (siehe `index.php`) die MySQL-Zugangsdaten anpassen:
+   - In der `config.php`-Datei die MySQL-Zugangsdaten anpassen:
      ```php
      $servername = "localhost";
      $username = "your_username";
