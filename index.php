@@ -1,10 +1,7 @@
 <?php
 session_start();
-// Datenbankkonfiguration
-$servername = "localhost";
-$username = "user";
-$password = "passwort";
-$dbname = "strawpoll";
+
+include 'config.php';
 
 // Verbindung zur Datenbank herstellen
 $conn = new mysqli($servername, $username, $password, $dbname);
