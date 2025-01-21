@@ -3,6 +3,8 @@ session_start();
 
 include 'config.php';
 
+date_default_timezone_set('Europe/Berlin'); // Deutsche Zeitzone
+
 // Verbindung zur Datenbank herstellen
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
@@ -29,16 +31,36 @@ function validateInput($input, $maxLength = 255)
     return $input;
 }
 
+function pollExpired($conn, $poll_id)
+{
+    //Prüfe, ob Umfrage noch aktuell
+    $cookie_expired = 'poll_expired_' . $poll_id;
+    $stmt = $conn->prepare("SELECT * FROM poll WHERE id = ? AND expires_at < NOW()");
+    $stmt->bind_param("s", $poll_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+    $numrows = $result->num_rows;
+    if (isset($_COOKIE[$cookie_expired]) || $numrows > 0) {
+        $message = "Diese Umfrage ist bereits abgelaufen.";
+        $cookie_expiration = time() + (10 * 365 * 24 * 60 * 60); // Cookie für 10 Jahre gültig
+        setcookie($cookie_expired, 'true', $cookie_expiration, "/", "", isset($_SERVER['HTTPS']), true);
+        return true;
+    }
+    return false;
+}
+
 // Umfrage erstellen
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_poll'])) {
     $question = validateInput($_POST['question']);
     $options = array_filter($_POST['options'], fn($opt) => validateInput($opt)); // Bereinigt und überprüft alle Optionen
+	$expidate = !empty($_POST['expi-date']) ? date('Y-m-d H:i:s', strtotime($_POST['expi-date'])) : null;
     if ($question === false || count($options) < 2) {
         $message = "Bitte füllen Sie die Frage und mindestens 2 Antwortmöglichkeiten korrekt aus.";
     } else {
         $poll_id = generateRandomId(10); // Generiere eine zufällige Umfrage-ID
-        $stmt = $conn->prepare("INSERT INTO poll (id, question, created_at) VALUES (?, ?, NOW())");
-        $stmt->bind_param("ss", $poll_id, $question);
+        $stmt = $conn->prepare("INSERT INTO poll (id, question, created_at, expires_at) VALUES (?, ?, NOW(), ?)");
+        $stmt->bind_param("sss", $poll_id, $question, $expidate);
         if ($stmt->execute()) {
             $stmt->close();
             $stmt = $conn->prepare("INSERT INTO poll_options (poll_id, option_text) VALUES (?, ?)");
@@ -58,15 +80,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_poll'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['vote'])) {
     $poll_option_id = intval($_POST['option']);
     $poll_id = validateInput($_POST['poll_id']);
-    $cookie_name = 'poll_voted_' . $poll_id;
-    $user_ip = $_SERVER['REMOTE_ADDR'];
+    $cookie_voted = 'poll_voted_' . $poll_id;
+    $user_ip = $_SERVER['REMOTE_ADDR'];    
     // Prüfen, ob Benutzer bereits abgestimmt hat
     $stmt = $conn->prepare("SELECT COUNT(*) as vote_count FROM poll_votes WHERE poll_id = ? AND ip_address = ?");
     $stmt->bind_param("ss", $poll_id, $user_ip);
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
     $stmt->close();
-    if (isset($_COOKIE[$cookie_name]) || $result['vote_count'] > 0) {
+    if (isset($_COOKIE[$cookie_voted]) || $result['vote_count'] > 0) {
         $message = "Du hast bereits an dieser Umfrage teilgenommen.";
     } else {
         $stmt = $conn->prepare("INSERT INTO poll_votes (poll_option_id, poll_id, ip_address) VALUES (?, ?, ?)");
@@ -75,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['vote'])) {
         $stmt->close();
         // Cookie setzen
         $cookie_expiration = time() + (10 * 365 * 24 * 60 * 60); // Cookie für 10 Jahre gültig
-        setcookie($cookie_name, 'true', $cookie_expiration, "/", "", isset($_SERVER['HTTPS']), true);
+        setcookie($cookie_voted, 'true', $cookie_expiration, "/", "", isset($_SERVER['HTTPS']), true);
         header("Location: " . $_SERVER['PHP_SELF'] . "?poll_id=" . $poll_id);
         exit;
     }
@@ -111,6 +133,16 @@ if (isset($_GET['poll_id'])) {
 
 // Alle Umfragen abrufen
 $all_polls = $conn->query("SELECT * FROM poll ORDER BY created_at DESC");
+
+        $remaining_time_seconds = 0;
+        $show_timer = false;
+        if (!empty($current_poll['expires_at'])) {
+            $expires_at = new DateTime($current_poll['expires_at']);
+            $now = new DateTime();
+            $remaining_time_seconds = max(0, $expires_at->getTimestamp() - $now->getTimestamp());
+            $show_timer = true;
+        }
+
 ?>
 
 <!DOCTYPE html>
@@ -254,9 +286,12 @@ $all_polls = $conn->query("SELECT * FROM poll ORDER BY created_at DESC");
     <div class="container">
         <!-- Hauptbereich -->
         <div class="main">
+			<?php if ($current_poll && !$poll_expired): ?>
+				<div id="timer" style="font-weight: bold; margin-top: 10px;"></div>
+			<?php endif; ?>
             <?php if ($current_poll): ?>
                 <h1><?= htmlspecialchars($current_poll['question']) ?></h1>
-                <?php if (isset($_COOKIE['poll_voted_' . $poll_id])): ?>
+                <?php if (isset($_COOKIE['poll_voted_' . $poll_id]) || isset($_COOKIE['poll_expired_' . $poll_id]) || pollExpired($conn, $poll_id)): ?>
                     <h3>Ergebnisse:</h3>
                     <div class="poll-results">
                         <?php 
@@ -300,12 +335,12 @@ $all_polls = $conn->query("SELECT * FROM poll ORDER BY created_at DESC");
                 <h1>Erstelle eine neue Abstimmung</h1>
                 <form method="post" id="poll-form">
                     <input type="text" name="question" placeholder="Gib die Frage ein..." required>
-                    <input type="text" name="options[]" placeholder="Antwort 1" value="Ja" required>
-                    <input type="text" name="options[]" placeholder="Antwort 2" value="Nein" required>
-                    <input type="text" name="options[]" placeholder="Antwort 3" value="Enthaltung">
-                    <input type="text" name="options[]" placeholder="Antwort 4" value="Aufschub">
+                    <input type="text" name="options[]" placeholder="Antwort 1" required>
+                    <input type="text" name="options[]" placeholder="Antwort 2" required>
                     <div id="additional-options"></div>
                     <button type="button" class="add-option" onclick="addOption()">Weitere Antwort hinzufügen</button>
+				    <p>Ende der Abstimmung (optional):</p>
+                    <input type="datetime-local" name="expi-date" max="2099-12-31" />
                     <button type="submit" name="create_poll">Abstimmung erstellen</button>
                 </form>
                 <?php if (isset($message)): ?>
@@ -318,6 +353,33 @@ $all_polls = $conn->query("SELECT * FROM poll ORDER BY created_at DESC");
         
     </div>
     <script>
+	
+	const remainingTime = <?= $remaining_time_seconds ?>;
+	
+    document.addEventListener("DOMContentLoaded", function() {
+        const timerElement = document.getElementById("timer");
+        if (!timerElement) return; // Kein Timer vorhanden, Funktion beenden
+
+        let timeLeft = remainingTime;
+
+        function updateTimer() {
+            if (timeLeft <= 0) {
+                timerElement.textContent = "";
+                clearInterval(timerInterval);
+                return;
+            }
+			const days = Math.floor(timeLeft / (60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (60*60*24)) / (60*60))
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `Verbleibende Zeit: ${days} Tage, ${hours} Stunden, ${minutes} Minuten, ${seconds} Sekunden`;
+            timeLeft--;
+        }
+
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+    });
+	
         // JavaScript-Funktion zum Hinzufügen weiterer Antwortfelder
         function addOption() {
             const container = document.getElementById('additional-options');
