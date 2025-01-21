@@ -3,7 +3,8 @@
 CREATE TABLE poll (
     id VARCHAR(10) PRIMARY KEY, -- Umfrage-ID (zufällig generiert)
     question TEXT NOT NULL, -- Die Frage der Umfrage
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Erstellungszeit der Umfrage
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Erstellungszeit der Umfrage
+    expires_at DATETIME DEFAULT NULL -- Endzeit der Umfrage
 );
 
 -- Tabelle für die Antwortmöglichkeiten (Options) jeder Umfrage
