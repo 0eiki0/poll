@@ -1,89 +1,83 @@
-# Poll - Ein Einfaches PHP-basiertes Abstimmungssystem
- 
-**Beschreibung**:  
-Dieses Repository enthält ein einfaches Abstimmungssystem, mit dem Benutzer Umfragen erstellen und an Abstimmungen teilnehmen können. Die Anwendung ist mit PHP und MySQL entwickelt und ermöglicht eine intuitive und übersichtliche Oberfläche für Umfragen und deren Ergebnisse.
+# Poll - A Simple PHP-Based Voting System
+
+**Description**:  
+This repository contains a simple voting system that allows users to create polls and participate in voting. The application is developed with PHP and MySQL, offering an intuitive and user-friendly interface for polls and their results.
 
 ---
 
 ## 🚀 **Features**
-
-1. **Erstellen von Umfragen**:
-   - Benutzer können eine beliebige Frage eingeben und Antwortmöglichkeiten hinzufügen.
-   - Es müssen mindestens zwei Antwortmöglichkeiten definiert sein.
-
-2. **Abstimmungen**:
-   - Besucher können über bereitgestellte Antworten abstimmen.
-   - Sicherheitsvorkehrungen wie IP-Adresse-Tracking und Cookies verhindern Mehrfachabstimmungen.
-
-3. **Ergebnisanzeige**:
-   - Stimmen werden in Echtzeit aktualisiert und als Balkendiagramm angezeigt.
-   - Gesamtstimmen und Verhältnisse (prozentual) werden für jede Antwortoption angezeigt.
-
-4. **Umfragenübersicht**:
-   - Alle erstellten Umfragen werden in der Datenbank gespeichert und können nach Bedarf aufgerufen werden.
-
-5. **Intuitive Benutzeroberfläche**:
-   - Einfaches und klares Design für beste Nutzererfahrung.
-   - Unterstützt das Hinzufügen von Optionen durch dynamische Eingabefelder.
-
-6. **Live-Updates**:
-   - Ergebnisse der Abstimmung werden per AJAX/Polling alle 2 Sekunden automatisch aktualisiert.
+1. **Creating Polls**:
+   - Users can enter any question and add answer options.
+   - At least two answer options must be defined.
+2. **Voting**:
+   - Visitors can vote on the provided options.
+   - Security measures like IP address tracking and cookies prevent multiple votes from the same user.
+3. **Result Display**:
+   - Votes are updated in real-time and displayed as a bar chart.
+   - Total votes and percentages are shown for each answer option.
+4. **Poll Overview**:
+   - All created polls are stored in the database and can be accessed as needed.
+5. **Intuitive User Interface**:
+   - Clean and simple design for the best user experience.
+   - Supports the addition of options through dynamic input fields.
+6. **Live Updates**:
+   - Poll results are automatically refreshed every 2 seconds via AJAX/Polling.
 
 ---
 
 ## ⚙️ **Installation**
 
-1. **Klonen des Projekts**:
+1. **Clone the Project**:
    ```bash
    git clone https://github.com/0eiki0/poll.git
    ```
-2. **Datenbankeinrichtung**:
-   - Importiere die bereitgestellte SQL-Datei (`strawpoll.sql`), die alle notwendigen Tabellen (`poll`, `poll_options`, `poll_votes`) erstellt.
-   - Gehe dazu ins MySQL-Terminal oder in ein Tool wie PHPMyAdmin:
+
+2. **Database Setup**:
+   - Import the provided SQL file (`strawpoll.sql`), which creates all necessary tables (`poll`, `poll_options`, `poll_votes`).
+   - Use the MySQL terminal or a tool like PHPMyAdmin:
      ```sql
      CREATE DATABASE strawpoll;
      USE strawpoll;
      SOURCE strawpoll.sql;
      ```
-3. **Konfiguration anpassen**:
-   - In der `config.php`-Datei die MySQL-Zugangsdaten anpassen:
+
+3. **Adjust Configuration**:
+   - Update the MySQL credentials in the `config.php` file:
      ```php
      $servername = "localhost";
      $username = "your_username";
      $password = "your_password";
      $dbname = "strawpoll";
      ```
-4. **Projekt auf einem lokalen oder Server-Host bereitstellen**:
-   - Kopiere die Projektdateien in das Root-Verzeichnis des Webservers.  
-     Für z.B. XAMPP: `htdocs/strawpoll`.
-   - Besuche `http://localhost/strawpoll/`.
+
+4. **Host Project Locally or on a Server**:
+   - Copy the project files to the root directory of your web server.  
+     For example, in XAMPP: `htdocs/strawpoll`.
+   - Visit `http://localhost/strawpoll/`.
 
 ---
 
-## 📋 **Nutzung**
+## 📋 **Usage**
+### 1. **Create a Poll**
+   - A form appears on the homepage allowing users to enter a question and define options.
+   - Additional options can be added or existing ones removed.
+   - After submission, the user is redirected to the newly created poll.
 
-### 1. **Umfrage erstellen**
-   - Auf der Hauptseite erscheint ein Formular, mit dem der Benutzer eine Frage und Antwortmöglichkeiten eingeben kann.
-   - Es können zusätzliche Optionen hinzugefügt oder bestehende entfernt werden.
-   - Nach dem Erstellen wird der Benutzer direkt zur neu erstellten Umfrage weitergeleitet.
+### 2. **Participate in a Poll**
+   - Participants select one of the available options and click "Vote".
+   - After voting, poll results are displayed in real-time.
 
-### 2. **An einer Umfrage teilnehmen**
-   - Teilnehmer wählen eine der verfügbaren Optionen aus und klicken auf "Abstimmen".
-   - Nach der Abstimmung werden die Ergebnisse der Umfrage in Echtzeit angezeigt.
-
-### 3. **Ergebnisse anzeigen**
-   - Jeder Benutzer kann das Abstimmungsergebnis sehen, wenn die Abstimmung abgeschlossen oder eine Teilnahme erfolgt ist.
-   - Ergebnisse sind als Balkendiagramm visualisiert und zeigen Stimmenanzahl sowie Prozentanteile.
+### 3. **View Results**
+   - Anyone can view poll results once voting is complete or after participating.
+   - Results are visualized as bar charts showing the number of votes and percentages.
 
 ---
 
 ## ❤️ **Contributions**
-
-Dieses Projekt ist ein persönliches Experiment und daher offen für Verbesserungsvorschläge und Pull Requests! 🎉  
-Bitte fühle dich frei, Bugs zu melden oder neue Features vorzuschlagen.
+This project is a personal experiment and is open to suggestions and pull requests! 🎉  
+Feel free to report bugs or propose new features.
 
 ---
 
-## 📜 **Lizenz**
-
-Dieses Projekt steht unter der [MIT-Lizenz](LICENSE.md). Feel free to use, modifizieren und verbessern! 😊
+## 📜 **License**
+This project is licensed under the [MIT License](LICENSE.md). Feel free to use, modify, and improve! 😊
